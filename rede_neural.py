@@ -1,9 +1,14 @@
 import json
 import numpy as np
 
+# Essas são as funcões de ativação, elas definem se um neurônio da rede
+# será ativado ou não, ou seja, se for 0, o neurônio não será ativado, se for outro valor,
+# ele será ativado.
+#
+# Sem as funções de ativação, nossa rede neural não seria capaz de formar relações complexas
+# entre as entradas e as saídas, ou seja, relações não lineares.
 def relu(x):
     return np.maximum(0, x)
-
 
 def relu_dx(x):
     return 0 if x < 0 else 1
@@ -22,6 +27,9 @@ class RedeNeural:
         self.bias_saida = np.random.rand(self.tam_saida) - 0.5
 
 
+    # Aqui é um processo comum em praticamente todos os tipos de rede neural.
+    # O feedforward é basicamente passar os dados de entrada até a saída
+    # através de uma sequência de operações de matrizes (matemática que aprendemos no ensino médio)
     def feedforward(self, X):
         # entrada para oculta
         z_oculta = X.dot(self.pesos_entrada_oculta) + self.bias_oculta
@@ -31,10 +39,14 @@ class RedeNeural:
         z_saida = ativacao_oculta.dot(self.pesos_oculta_saida) + self.bias_saida
         ativacao_saida = np.array([relu_dx(z) for z in z_saida])
 
-        return ativacao_saida
+        return ativacao_oculta, ativacao_saida
 
 
-    # atualizar os pesos e bias aleatoriamente
+    # A maneira de atualizar os pesos da rede neural de forma que ela consiga
+    # pegar um conjunto de entradas e mapear para as saídas corretas é a chave para o aprendizado
+    # 
+    # Aqui eu apenas atualizo os parâmetros da rede de forma aleatória até encontrar uma configuração ideal.
+    # Desse modo, essa rede aprende na força bruta
     def aprender(self):
         self.pesos_entrada_oculta = np.random.rand(self.tam_entrada, self.tam_oculta) - 0.5
         self.bias_oculta = np.random.rand(self.tam_oculta) - 0.5
@@ -42,6 +54,7 @@ class RedeNeural:
         self.bias_saida = np.random.rand(self.tam_saida) - 0.5
 
 
+    # As funções a seguir não influenciam no aprendizado, são apenas para salvar os parâmetros da rede em um arquivo
     def obter_parametros(self):
         return {
             "pesos_entrada_oculta": self.pesos_entrada_oculta.tolist(),
@@ -50,6 +63,7 @@ class RedeNeural:
             "bias_saida": self.bias_saida.tolist()
         }
     
+
     def salvar_parametros(self):
         parametros = self.obter_parametros()
         with open('parametros_rede_neural.json', 'w') as arquivo:
